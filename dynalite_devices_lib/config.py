@@ -12,6 +12,7 @@ from .const import (
     CONF_AUTO_DISCOVER,
     CONF_CHANNEL,
     CONF_CHANNEL_COVER,
+    CONF_CHANNEL_MODE,
     CONF_CHANNEL_TYPE,
     CONF_CLOSE_PRESET,
     CONF_DEFAULT,
@@ -36,6 +37,7 @@ from .const import (
     CONF_TILT_TIME,
     CONF_TIME_COVER,
     CONF_TRIGGER,
+    DEFAULT_CHANNEL_MODE,
     DEFAULT_CHANNEL_TYPE,
     DEFAULT_NAME,
     DEFAULT_PORT,
@@ -162,7 +164,7 @@ class DynaliteConfig:
                 area_config.get(CONF_QUERY_CHANNEL, default_query_channel)
             ),
         }
-        for conf in [CONF_TEMPLATE, CONF_AREA_OVERRIDE]:
+        for conf in [CONF_TEMPLATE, CONF_AREA_OVERRIDE, CONF_CHANNEL_MODE]:
             if conf in area_config:
                 result[conf] = area_config[conf]
         # User defined presets and channels first, then template presets, then defaults

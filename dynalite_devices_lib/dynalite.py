@@ -104,10 +104,27 @@ class Dynalite:
         self._loop.call_soon(self._broadcast_func, event)
 
     def set_channel_level(
-        self, area: int, channel: int, level: float, fade: float
+        self, area: int, channel: int, level: float, fade: float,
+        channel_mode: str = "level",
     ) -> None:
-        """Set the level of a channel."""
-        packet = DynetPacket.set_channel_level_packet(area, channel, level, fade)
+        """Set the level of a channel.
+
+        When channel_mode is "level" (default), uses SET_CHANNEL_X_TO_LEVEL_WITH_FADE
+        opcodes (0x80-0x83) which support dimming but only work with Dynalite
+        controllers that accept direct channel level commands.
+
+        When channel_mode is "preset", uses FADE_CHANNEL_AREA_TO_PRESET opcode
+        (0x6B) which is universally compatible with all Dynalite controller types
+        including relay outputs and preset-controlled systems. In this mode,
+        level > 0 maps to Preset 1 (ON) and level = 0 maps to Preset 4 (OFF).
+        """
+        if channel_mode == "preset":
+            preset = 1 if level > 0 else 4
+            packet = DynetPacket.fade_area_channel_preset_packet(
+                area, channel, preset, fade
+            )
+        else:
+            packet = DynetPacket.set_channel_level_packet(area, channel, level, fade)
         self.write(packet)
         broadcast_data = {
             CONF_AREA: area,
