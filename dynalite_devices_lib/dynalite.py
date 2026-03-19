@@ -114,15 +114,23 @@ class Dynalite:
         controllers that accept direct channel level commands.
 
         When channel_mode is "preset", uses FADE_CHANNEL_AREA_TO_PRESET opcode
-        (0x6B) which is universally compatible with all Dynalite controller types
-        including relay outputs and preset-controlled systems. In this mode,
-        level > 0 maps to Preset 1 (ON) and level = 0 maps to Preset 4 (OFF).
+        (0x6B) for full ON/OFF, which is universally compatible with all Dynalite
+        controller types including relay outputs and preset-controlled systems.
+        For intermediate brightness levels, falls back to SET_CHANNEL_X_TO_LEVEL
+        (0x80-0x83) to preserve dimming support on dimmer modules.
         """
         if channel_mode == "preset":
-            preset = 1 if level > 0 else 4
-            packet = DynetPacket.fade_area_channel_preset_packet(
-                area, channel, preset, fade
-            )
+            if level <= 0 or level >= 1.0:
+                # Full ON or OFF - use preset command (works on all controllers)
+                preset = 1 if level >= 1.0 else 4
+                packet = DynetPacket.fade_area_channel_preset_packet(
+                    area, channel, preset, fade
+                )
+            else:
+                # Intermediate brightness - use channel level (supports dimming)
+                packet = DynetPacket.set_channel_level_packet(
+                    area, channel, level, fade
+                )
         else:
             packet = DynetPacket.set_channel_level_packet(area, channel, level, fade)
         self.write(packet)
