@@ -17,7 +17,6 @@ from .const import (
     CONF_AREA_OVERRIDE,
     CONF_CHANNEL,
     CONF_CHANNEL_COVER,
-    CONF_CHANNEL_MODE,
     CONF_CHANNEL_TYPE,
     CONF_CLOSE_PRESET,
     CONF_DEVICE_CLASS,
@@ -38,7 +37,6 @@ from .const import (
     CONF_TILT_TIME,
     CONF_TIME_COVER,
     CONF_TRGT_LEVEL,
-    DEFAULT_CHANNEL_MODE,
     DEFAULT_CHANNEL_TYPE,
     DEFAULT_COVER_CLASS,
     EVENT_CHANNEL,
@@ -450,10 +448,7 @@ class DynaliteDevices:
     ) -> None:
         """Set the level for a channel."""
         fade = self._area[area][CONF_CHANNEL][channel][CONF_FADE]
-        channel_mode = self._area[area].get(CONF_CHANNEL_MODE, DEFAULT_CHANNEL_MODE)
-        self._dynalite.set_channel_level(
-            area, channel, level, fade, channel_mode=channel_mode
-        )
+        self._dynalite.set_channel_level(area, channel, level, fade)
 
     def select_preset(self, area: int, preset: int, fade: float) -> None:
         """Select a preset in an area."""
